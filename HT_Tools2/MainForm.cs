@@ -258,7 +258,7 @@ namespace HT_Tools2
             series1.BorderWidth = 2;
             series1.Color = Color.Red;
             series1.XValueType = ChartValueType.Time;//x axis type
-            series1.YValueType = ChartValueType.Int32;//y axis type
+            series1.YValueType = ChartValueType.Double;//y axis type
 
             //Marker
             series1.MarkerStyle = MarkerStyle.Square;
@@ -335,6 +335,7 @@ namespace HT_Tools2
 
         private void UpdateChart(string str)
         {
+            DateTime t = System.DateTime.Now;
             if (dataQueue.Count > 1000)
             {
                 //先出列
@@ -356,7 +357,8 @@ namespace HT_Tools2
             
             for (int i = 0; i < dataQueue.Count; i++)
             {
-                this.chart1.Series[0].Points.AddXY((i + 1), dataQueue.ElementAt(i));
+                var strtt = t;
+                this.chart1.Series[0].Points.AddXY(strtt.ToString(), dataQueue.ElementAt(i));
                 
             }
 
