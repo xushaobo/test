@@ -32,6 +32,8 @@ namespace HT_Tools2
         private int num = 1; //每次删除增加几个点
         private int sum = 1;
 
+        private DateTime minValue, maxValue;//横坐标最大值最小值
+
         public MainForm()
         {
             InitializeComponent();
@@ -43,6 +45,9 @@ namespace HT_Tools2
             dataGridView1.RowHeadersVisible = false;
             dataGridView1.DataSource = _valusetTable;
             _valusetTable.DefaultView.Sort = "Time DESC";
+
+            this.comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
+            this.comboBox1.Text = "0.1";//默认量程
         }
 
 
@@ -189,6 +194,7 @@ namespace HT_Tools2
             chartArea1.CursorX.IntervalType = DateTimeIntervalType.Auto;
             //chartArea1.AxisX.ScaleView.Zoomable = false;
             chartArea1.AxisX.ScrollBar.ButtonStyle = ScrollBarButtonStyles.All;//启用X轴滚动条按钮
+            //chartArea1.AxisX.LabelStyle.Format = "mm:ss";
 
             chartArea1.BackColor = Color.AliceBlue;                      //背景色
             chartArea1.BackSecondaryColor = Color.White;                 //渐变背景色
@@ -257,7 +263,7 @@ namespace HT_Tools2
             series1.ChartType = SeriesChartType.Spline;  // type
             series1.BorderWidth = 2;
             series1.Color = Color.Red;
-            series1.XValueType = ChartValueType.Time;//x axis type
+            series1.XValueType = ChartValueType.DateTime;//x axis type
             series1.YValueType = ChartValueType.Double;//y axis type
 
             //Marker
@@ -267,10 +273,13 @@ namespace HT_Tools2
 
             this.chart1.Legends.Clear();
             this.chart1.ChartAreas[0].AxisY.Minimum = 0;
-            this.chart1.ChartAreas[0].AxisY.Maximum = 0.1;
+            this.chart1.ChartAreas[0].AxisY.Maximum = double.Parse(comboBox1.Text);
             this.chart1.ChartAreas[0].AxisX.Interval = 5;
             this.chart1.ChartAreas[0].AxisX.MajorGrid.LineColor = System.Drawing.Color.Silver;
             this.chart1.ChartAreas[0].AxisY.MajorGrid.LineColor = System.Drawing.Color.Silver;
+            
+
+            //this.chart1.ChartAreas[0].AxisX.LabelStyle.Format = "mm:ss";
             //设置标题
             this.chart1.Titles.Clear();
             this.chart1.Titles.Add("st1");
@@ -283,6 +292,8 @@ namespace HT_Tools2
 
             chart1.ChartAreas[0].AxisX.Interval = 1D;
             chart1.ChartAreas[0].AxisX.ScaleView.Size = 10D;
+
+
             
         }
 
@@ -335,6 +346,7 @@ namespace HT_Tools2
 
         private void UpdateChart(string str)
         {
+            this.chart1.ChartAreas[0].AxisY.Maximum = double.Parse(comboBox1.Text);
             DateTime t = System.DateTime.Now;
             if (dataQueue.Count > 1000)
             {
@@ -357,10 +369,20 @@ namespace HT_Tools2
             
             for (int i = 0; i < dataQueue.Count; i++)
             {
-                var strtt = t;
-                this.chart1.Series[0].Points.AddXY(strtt.ToString(), dataQueue.ElementAt(i));
                 
+                this.chart1.Series[0].Points.AddXY(t.ToString("HH:mm:ss"), dataQueue.ElementAt(i));
+                //this.chart1.Series[0].Points.AddXY(t.ToOADate(), dataQueue.ElementAt(i));
             }
+
+            //让x轴能自动移动
+            if (sum <= chart1.ChartAreas[0].AxisX.ScaleView.Size)
+            {
+
+                chart1.ChartAreas[0].AxisX.ScaleView.Position = 1;
+            }
+            else
+                chart1.ChartAreas[0].AxisX.ScaleView.Position = sum - chart1.ChartAreas[0].AxisX.ScaleView.Size - 1;
+
 
         }
 
@@ -379,14 +401,6 @@ namespace HT_Tools2
             buttonNumber9.Number = Convert.ToInt32(str.Substring(8, 1));
             buttonNumber10.Number = Convert.ToInt32(str.Substring(9, 1));
 
-            //让x轴能自动移动
-            if (sum <= chart1.ChartAreas[0].AxisX.ScaleView.Size)
-            {
-
-                chart1.ChartAreas[0].AxisX.ScaleView.Position = 1;
-            }
-            else
-                chart1.ChartAreas[0].AxisX.ScaleView.Position = sum - chart1.ChartAreas[0].AxisX.ScaleView.Size - 1;
 
 
         }
