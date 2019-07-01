@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.645
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HT_Tools2", "HT_Tools2\HT_Tools2.csproj", "{32D2E4ED-0CDD-47FA-AB0F-BAC339402274}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToolsRegister", "ToolsRegister\ToolsRegister.csproj", "{19BD73CA-543C-458F-B658-B372D4C8E43E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PFunc", "PFunc\PFunc.csproj", "{CCE620AC-2F50-4DDA-ADAB-F4C482F71C0F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32D2E4ED-0CDD-47FA-AB0F-BAC339402274}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32D2E4ED-0CDD-47FA-AB0F-BAC339402274}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32D2E4ED-0CDD-47FA-AB0F-BAC339402274}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32D2E4ED-0CDD-47FA-AB0F-BAC339402274}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19BD73CA-543C-458F-B658-B372D4C8E43E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19BD73CA-543C-458F-B658-B372D4C8E43E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19BD73CA-543C-458F-B658-B372D4C8E43E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19BD73CA-543C-458F-B658-B372D4C8E43E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCE620AC-2F50-4DDA-ADAB-F4C482F71C0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCE620AC-2F50-4DDA-ADAB-F4C482F71C0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCE620AC-2F50-4DDA-ADAB-F4C482F71C0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCE620AC-2F50-4DDA-ADAB-F4C482F71C0F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F3D124D2-56E6-43C4-B6BC-53F629F210D7}
+	EndGlobalSection
+EndGlobal
