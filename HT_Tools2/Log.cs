@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using HT_Tools2.Properties;
 
 namespace HT_Tools2
 {
@@ -10,7 +11,8 @@ namespace HT_Tools2
        public string GetLogFile()
         {
             //日志文件名
-            var date = DateTime.Now.ToString("yyyy-MM-dd");
+            var date = DateTime.Now.ToString("yyyyMMdd-");
+            int fileId = 0;
 
             var strAssemblyFilePath = Assembly.GetExecutingAssembly().Location;
             var strAssemblyDirPath = Path.GetDirectoryName(strAssemblyFilePath);
@@ -19,7 +21,7 @@ namespace HT_Tools2
             if (!Directory.Exists(strAssemblyDirPath + $"\\log"))     　　              
                 Directory.CreateDirectory(strAssemblyDirPath + $"\\log");
 
-            return strAssemblyDirPath + $"\\log\\{date}.txt";
+             return strAssemblyDirPath + $"\\log\\{date}{fileId.ToString()}.txt";
         }
 
 

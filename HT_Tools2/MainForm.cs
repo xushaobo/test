@@ -33,6 +33,8 @@ namespace HT_Tools2
         private int sum = 1;
 
         private DateTime minValue, maxValue;//横坐标最大值最小值
+        
+       
 
         public MainForm()
         {
@@ -48,6 +50,8 @@ namespace HT_Tools2
 
             this.comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             this.comboBox1.Text = "0.1";//默认量程
+
+            
         }
 
 
@@ -191,7 +195,7 @@ namespace HT_Tools2
             chartArea1.CursorY.IsUserSelectionEnabled = true;
             chartArea1.CursorY.SelectionColor = Color.SkyBlue;
 
-            chartArea1.CursorX.IntervalType = DateTimeIntervalType.Auto;
+            //chartArea1.CursorX.IntervalType = DateTimeIntervalType.Auto;
             //chartArea1.AxisX.ScaleView.Zoomable = false;
             chartArea1.AxisX.ScrollBar.ButtonStyle = ScrollBarButtonStyles.All;//启用X轴滚动条按钮
             //chartArea1.AxisX.LabelStyle.Format = "mm:ss";
@@ -263,7 +267,8 @@ namespace HT_Tools2
             series1.ChartType = SeriesChartType.Spline;  // type
             series1.BorderWidth = 2;
             series1.Color = Color.Red;
-            series1.XValueType = ChartValueType.DateTime;//x axis type
+            //series1.XValueType = ChartValueType.DateTime;//x axis type
+            series1.XValueType = ChartValueType.Int64 ;
             series1.YValueType = ChartValueType.Double;//y axis type
 
             //Marker
@@ -279,7 +284,8 @@ namespace HT_Tools2
             this.chart1.ChartAreas[0].AxisY.MajorGrid.LineColor = System.Drawing.Color.Silver;
             
 
-            //this.chart1.ChartAreas[0].AxisX.LabelStyle.Format = "mm:ss";
+            //this.chart1.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm:ss";
+
             //设置标题
             this.chart1.Titles.Clear();
             this.chart1.Titles.Add("st1");
@@ -290,9 +296,9 @@ namespace HT_Tools2
             this.chart1.Series[0].Points.Clear();
 
 
-            chart1.ChartAreas[0].AxisX.Interval = 1D;
-            chart1.ChartAreas[0].AxisX.ScaleView.Size = 10D;
-
+            chart1.ChartAreas[0].AxisX.Interval = 10D;
+            chart1.ChartAreas[0].AxisX.ScaleView.Size = 60D;
+            
 
             
         }
@@ -369,9 +375,12 @@ namespace HT_Tools2
             
             for (int i = 0; i < dataQueue.Count; i++)
             {
-                
-                this.chart1.Series[0].Points.AddXY(t.ToString("HH:mm:ss"), dataQueue.ElementAt(i));
-                //this.chart1.Series[0].Points.AddXY(t.ToOADate(), dataQueue.ElementAt(i));
+                List<DateTime> DT1 = new List<DateTime>();
+                DT1 = Enumerable.Range(0, dataQueue.Count).Select(x => x * 30).Select(x => new { h = x / 3600, m = (x % 3600)/60, s = (x % 3600) % 60 })
+                    .Select(x => new DateTime(1900, 1, 1, x.h, x.m, x.s, DateTimeKind.Local)).ToList();
+
+                //this.chart1.Series[0].Points.DataBindXY(DT1, dataQueue);
+                this.chart1.Series[0].Points.AddXY(i, dataQueue.ElementAt(i));
             }
 
             //让x轴能自动移动
@@ -381,7 +390,7 @@ namespace HT_Tools2
                 chart1.ChartAreas[0].AxisX.ScaleView.Position = 1;
             }
             else
-                chart1.ChartAreas[0].AxisX.ScaleView.Position = sum - chart1.ChartAreas[0].AxisX.ScaleView.Size - 1;
+                chart1.ChartAreas[0].AxisX.ScaleView.Position = sum - chart1.ChartAreas[0].AxisX.ScaleView.Size ;
 
 
         }
