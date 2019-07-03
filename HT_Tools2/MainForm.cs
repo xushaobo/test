@@ -67,6 +67,7 @@ namespace HT_Tools2
         private void MainForm_Load(object sender, EventArgs e)
         {
             CreateCmd();
+            CreateFileName();
             pictureBox1.Image = Resources.logo;
             InitChart();
 
@@ -80,7 +81,7 @@ namespace HT_Tools2
 
 
 #if DEBUG
-            GotTestDataAction("\\log\\test.txt");
+            
             
             return;
 #endif
@@ -343,12 +344,12 @@ namespace HT_Tools2
             var posx = 10;
             foreach (var cmdse in cmds)
             {
-                var cmd = new ToolStripMenuItem
+               var cmd = new ToolStripMenuItem
                 {
                     Text = cmdse.Cmd
                 };
-                cmd.Click += cmdse.Click;
-                命令ToolStripMenuItem.DropDownItems.Add(cmd);
+               cmd.Click += cmdse.Click;
+               //// 命令ToolStripMenuItem.DropDownItems.Add(cmd);
                 //读取所有log目录下的日志文件并加载在文件下拉选项
                 // var strAssemblyFilePath = Assembly.GetExecutingAssembly().Location;
                 // var strAssemblyDirPath = Path.GetDirectoryName(strAssemblyFilePath);
@@ -369,6 +370,21 @@ namespace HT_Tools2
                 btn.Location = new Point(posx, 33);
 
                 posx += btn.Width + 10;
+            }
+        }
+        private void CreateFileName()
+        {
+            var strAssemblyFilePath = Assembly.GetExecutingAssembly().Location;
+            var strAssemblyDirPath = Path.GetDirectoryName(strAssemblyFilePath);
+            DirectoryInfo theFolder = new DirectoryInfo(strAssemblyDirPath + $"\\log");
+            foreach(FileInfo NextFile in theFolder.GetFiles())
+            {
+                var cmd = new ToolStripMenuItem
+                {
+                    Text = NextFile.Name
+                };
+                cmd.Click += 命令ToolStripMenuItem_Click;
+                命令ToolStripMenuItem.DropDownItems.Add(cmd);
             }
         }
 
@@ -415,6 +431,12 @@ namespace HT_Tools2
                 chart1.ChartAreas[0].AxisX.ScaleView.Position = sum - chart1.ChartAreas[0].AxisX.ScaleView.Size - 2;
 
 
+        }
+
+        private void 命令ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //GotTestDataAction(sender.ToString());
+            
         }
 
         private void timer1_Tick_1(object sender, EventArgs e)
