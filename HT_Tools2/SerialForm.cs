@@ -70,7 +70,7 @@ namespace HT_Tools2
                 _port.DataReceived += (s1, e1) =>
                 {
                     var indata = _port.ReadLine();
-                    _log.WriteLine(_logfile, indata);
+                    _log.WriteLine(_log._direc + _logfile, indata);
                     MyAction(indata);
                 };
             }
