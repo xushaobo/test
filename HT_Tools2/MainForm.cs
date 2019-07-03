@@ -320,7 +320,7 @@ namespace HT_Tools2
         private void GotTestDataAction(string txtName)
         {
             //StreamReader sr = new StreamReader(Directory.GetCurrentDirectory() + "\\log\\test.txt", Encoding.Default);
-            StreamReader sr = new StreamReader(Directory.GetCurrentDirectory() + txtName, Encoding.Default);
+            StreamReader sr = new StreamReader(Directory.GetCurrentDirectory() + "\\log\\" + txtName, Encoding.Default);
             String line;
 
             new Thread(() =>
@@ -335,6 +335,7 @@ namespace HT_Tools2
                 }
                 
             }) {IsBackground = true}.Start();
+            
 
         }
 
@@ -435,8 +436,9 @@ namespace HT_Tools2
 
         private void 命令ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //GotTestDataAction(sender.ToString());
+            GotTestDataAction(sender.ToString());
             
+
         }
 
         private void timer1_Tick_1(object sender, EventArgs e)

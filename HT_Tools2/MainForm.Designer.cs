@@ -360,7 +360,7 @@
             this.命令ToolStripMenuItem.Name = "命令ToolStripMenuItem";
             this.命令ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
             this.命令ToolStripMenuItem.Text = "文件";
-            this.命令ToolStripMenuItem.Click += new System.EventHandler(this.命令ToolStripMenuItem_Click);
+            
             // 
             // menuStrip1
             // 
