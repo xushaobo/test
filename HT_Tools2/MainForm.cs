@@ -14,6 +14,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using HT_Tools2.Properties;
+using System.Reflection;
 
 namespace HT_Tools2
 {
@@ -68,8 +69,18 @@ namespace HT_Tools2
             CreateCmd();
             pictureBox1.Image = Resources.logo;
             InitChart();
+
+            //读取所有log目录下的日志文件并加载在文件下拉选项
+            //var strAssemblyFilePath = Assembly.GetExecutingAssembly().Location;
+            //var strAssemblyDirPath = Path.GetDirectoryName(strAssemblyFilePath);
+            //DirectoryInfo theFolder = new DirectoryInfo(strAssemblyDirPath + $"\\log");
+            //foreach (FileInfo NextFile in theFolder.GetFiles())
+                //命令ToolStripMenuItem.DropDownItems.Add(NextFile.Name);
+
+
+
 #if DEBUG
-           GotTestDataAction("\\log\\test.txt");
+            GotTestDataAction("\\log\\test.txt");
             
             return;
 #endif
@@ -337,8 +348,14 @@ namespace HT_Tools2
                     Text = cmdse.Cmd
                 };
                 cmd.Click += cmdse.Click;
-
                 命令ToolStripMenuItem.DropDownItems.Add(cmd);
+                //读取所有log目录下的日志文件并加载在文件下拉选项
+                // var strAssemblyFilePath = Assembly.GetExecutingAssembly().Location;
+                // var strAssemblyDirPath = Path.GetDirectoryName(strAssemblyFilePath);
+                // DirectoryInfo theFolder = new DirectoryInfo(strAssemblyDirPath + $"\\log");
+                //foreach (FileInfo NextFile in theFolder.GetFiles())
+                //命令ToolStripMenuItem.DropDownItems.Add(NextFile.Name);
+                //命令ToolStripMenuItem.DropDownItems.Add(cmd);
 
                 var btn = new Button
                 {
