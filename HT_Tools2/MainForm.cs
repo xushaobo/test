@@ -28,7 +28,7 @@ namespace HT_Tools2
         private double _qty = 0;
         private double _sumValue = 0;
 
-        private Queue<double> dataQueue = new Queue<double>(1000);
+        private Queue<double> dataQueue = new Queue<double>(10000);
         private int num = 1; //每次删除增加几个点
         private int sum = 1;
 
@@ -69,8 +69,9 @@ namespace HT_Tools2
             pictureBox1.Image = Resources.logo;
             InitChart();
 #if DEBUG
-           GotTestDataAction();
-           return;
+           GotTestDataAction("\\log\\test.txt");
+            
+            return;
 #endif
             //SerialPort(String, Int32, Parity, Int32, StopBits)	使用指定的端口名、波特率、奇偶校验位、数据位和停止位初始化 SerialPort 类的新实例。
 
@@ -273,7 +274,7 @@ namespace HT_Tools2
 
             //Marker
             series1.MarkerStyle = MarkerStyle.Square;
-            series1.MarkerSize = 5;
+            series1.MarkerSize = 4;
             series1.MarkerColor = Color.Black;
 
             this.chart1.Legends.Clear();
@@ -304,21 +305,25 @@ namespace HT_Tools2
         }
 
 
-        private void GotTestDataAction()
+        private void GotTestDataAction(string txtName)
         {
-            StreamReader sr = new StreamReader(Directory.GetCurrentDirectory() + "\\log\\test.txt", Encoding.Default);
+            //StreamReader sr = new StreamReader(Directory.GetCurrentDirectory() + "\\log\\test.txt", Encoding.Default);
+            StreamReader sr = new StreamReader(Directory.GetCurrentDirectory() + txtName, Encoding.Default);
             String line;
 
             new Thread(() =>
             {
                 while ((line = sr.ReadLine()) != null)
                 {
-                   
 
-                    MyAction(line);
-                    Thread.Sleep(1000);
+                    int index = line.LastIndexOf(' ');
+                    string line2 = line.Substring(index + 1);
+                    MyAction(line2);
+                    Thread.Sleep(0);
                 }
+                
             }) {IsBackground = true}.Start();
+
         }
 
         private void CreateCmd()
@@ -354,7 +359,7 @@ namespace HT_Tools2
         {
             this.chart1.ChartAreas[0].AxisY.Maximum = double.Parse(comboBox1.Text);
             DateTime t = System.DateTime.Now;
-            if (dataQueue.Count > 1000)
+            if (dataQueue.Count > 10000)
             {
                 //先出列
                 for (int i = 0; i < num; i++)
@@ -376,8 +381,8 @@ namespace HT_Tools2
             for (int i = 0; i < dataQueue.Count; i++)
             {
                 List<DateTime> DT1 = new List<DateTime>();
-                DT1 = Enumerable.Range(0, dataQueue.Count).Select(x => x * 30).Select(x => new { h = x / 3600, m = (x % 3600)/60, s = (x % 3600) % 60 })
-                    .Select(x => new DateTime(1900, 1, 1, x.h, x.m, x.s, DateTimeKind.Local)).ToList();
+               // DT1 = Enumerable.Range(0, dataQueue.Count).Select(x => x * 30).Select(x => new { h = x / 3600, m = (x % 3600)/60, s = (x % 3600) % 60 })
+               //     .Select(x => new DateTime(1900, 1, 1, x.h, x.m, x.s, DateTimeKind.Local)).ToList();
 
                 //this.chart1.Series[0].Points.DataBindXY(DT1, dataQueue);
                 this.chart1.Series[0].Points.AddXY(i, dataQueue.ElementAt(i));
@@ -387,10 +392,10 @@ namespace HT_Tools2
             if (sum <= chart1.ChartAreas[0].AxisX.ScaleView.Size)
             {
 
-                chart1.ChartAreas[0].AxisX.ScaleView.Position = 1;
+                chart1.ChartAreas[0].AxisX.ScaleView.Position = 0;
             }
             else
-                chart1.ChartAreas[0].AxisX.ScaleView.Position = sum - chart1.ChartAreas[0].AxisX.ScaleView.Size ;
+                chart1.ChartAreas[0].AxisX.ScaleView.Position = sum - chart1.ChartAreas[0].AxisX.ScaleView.Size - 2;
 
 
         }
