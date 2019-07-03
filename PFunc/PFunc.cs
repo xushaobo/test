@@ -93,7 +93,7 @@ namespace HT_Tools2
                     return Convert.ToBase64String(encryptdata);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }
@@ -112,7 +112,7 @@ namespace HT_Tools2
                     return Encoding.Default.GetString(decryptdata);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }

@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -15,12 +14,13 @@ using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using HT_Tools2.Properties;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace HT_Tools2
 {
-    public partial class MainForm : BaseForm
+    public partial class MainForm : BaseForm, ICmdAction
     {
-        private SerialPort _port;
+        protected Log _log = new Log();
 
         private DataTable _valusetTable = new DataTable();
 
@@ -29,17 +29,18 @@ namespace HT_Tools2
         private double _qty = 0;
         private double _sumValue = 0;
 
-        private Queue<double> dataQueue = new Queue<double>(10000);
+        private Queue<double> dataQueue = new Queue<double>();
         private int num = 1; //每次删除增加几个点
         private int sum = 1;
 
-        private DateTime minValue, maxValue;//横坐标最大值最小值
-        
-       
+        private ICmdAction _this;
 
-        public MainForm()
+        protected MainForm()
         {
             InitializeComponent();
+
+            MaximizeBox = false;
+            MinimizeBox = false;
 
             _valusetTable.Columns.Add("Time");
             _valusetTable.Columns.Add("Value");
@@ -50,70 +51,27 @@ namespace HT_Tools2
             _valusetTable.DefaultView.Sort = "Time DESC";
 
             this.comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
-            this.comboBox1.Text = "0.1";//默认量程
+            this.comboBox1.Text = "0.1"; //默认量程
 
-            
-        }
-
-
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (_port != null && _port.IsOpen)
-            {
-                _port.Close();
-            }
+            _this = (ICmdAction) this;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
             CreateCmd();
-            CreateFileName();
             pictureBox1.Image = Resources.logo;
             InitChart();
 
-            //读取所有log目录下的日志文件并加载在文件下拉选项
-            //var strAssemblyFilePath = Assembly.GetExecutingAssembly().Location;
-            //var strAssemblyDirPath = Path.GetDirectoryName(strAssemblyFilePath);
-            //DirectoryInfo theFolder = new DirectoryInfo(strAssemblyDirPath + $"\\log");
-            //foreach (FileInfo NextFile in theFolder.GetFiles())
-                //命令ToolStripMenuItem.DropDownItems.Add(NextFile.Name);
-
-
-
-#if DEBUG
-            
-            
-            return;
-#endif
-            //SerialPort(String, Int32, Parity, Int32, StopBits)	使用指定的端口名、波特率、奇偶校验位、数据位和停止位初始化 SerialPort 类的新实例。
-
-            try
-            {
-                var ss = ConfigurationManager.AppSettings["SerialSetting"];
-
-                var temp = ss.Split('/');
-
-                _port = new SerialPort(temp[0], int.Parse(temp[1]), (Parity) Enum.Parse(typeof(Parity), temp[2]),
-                    int.Parse(temp[3]), (StopBits) Enum.Parse(typeof(StopBits), temp[4]));
-
-                _port.Open();
-
-                _port.DataReceived += (s1, e1) =>
-                {
-                    var indata = _port.ReadLine();
-                    MyAction(indata);
-                };
-            }
-            catch (Exception exception)
-            {
-                MessageBox.Show(exception.Message);
-                Application.Exit();
-            }
+            Type dgvType = this.dataGridView1.GetType();
+            PropertyInfo pi = dgvType.GetProperty("DoubleBuffered",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            pi.SetValue(this.dataGridView1, true, null);
         }
 
-
-
-
+        /// <summary>
+        /// 获取命令结合 用于创建btn,toolstrip
+        /// </summary>
+        /// <returns></returns>
         private List<Cmds> GetCmds()
         {
             var cmds = new List<Cmds>();
@@ -121,7 +79,7 @@ namespace HT_Tools2
             var cmd = new Cmds
             {
                 Cmd = "开始接收",
-                Click = (s, e) => { _port.WriteLine("X"); }
+                Click = (s, e) => { _this.Start(); }
             };
 
             cmds.Add(cmd);
@@ -129,7 +87,7 @@ namespace HT_Tools2
             var cmd2 = new Cmds
             {
                 Cmd = "停止接收",
-                Click = (s, e) => { _port.WriteLine("Z"); }
+                Click = (s, e) => { _this.Stop(); }
             };
 
             cmds.Add(cmd2);
@@ -142,16 +100,43 @@ namespace HT_Tools2
 #if DEBUG
                     MessageBox.Show(_valusetTable.Rows.Count.ToString());
 #endif
-                   Application.Restart();
+                    Application.Restart();
                 }
             };
 
             cmds.Add(cmd3);
 
+            var cmd4 = new Cmds
+            {
+                Cmd = "打开",
+                Click = (s, e) =>
+                {
+                    var of = new OpenFileDialog
+                    {
+                        InitialDirectory = _log._direc,
+                        Filter = "日志文件(*.ht2)|*.ht2"
+                    };
+
+                    if (of.ShowDialog() != DialogResult.OK) return;
+
+                    var f = new FileForm
+                    {
+                        LogFile = of.FileName
+                    };
+                    f.ShowDialog();
+                }
+            };
+
+            cmds.Add(cmd4);
+
             return cmds;
         }
 
-        private void MyAction(string str)
+        /// <summary>
+        /// 接受数据处理
+        /// </summary>
+        /// <param name="str"></param>
+        protected void MyAction(string str)
         {
             //忽略负值
             if (float.Parse(str) < 0.000001)
@@ -162,12 +147,12 @@ namespace HT_Tools2
             Invoke(new Action(() =>
             {
                 var t = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                Trace.WriteLine(str);
                 label1.Text = str;
                 var row = _valusetTable.NewRow();
                 row["time"] = t;
                 row["Value"] = str;
                 _valusetTable.Rows.Add(row);
+                dataGridView1.CurrentCell = dataGridView1.Rows[0].Cells[0];
 
                 //计算最大值
 
@@ -188,7 +173,9 @@ namespace HT_Tools2
             }));
         }
 
-
+        /// <summary>
+        /// 初始化图表
+        /// </summary>
         private void InitChart()
         {
             //时间控件t开始
@@ -210,15 +197,15 @@ namespace HT_Tools2
 
             //chartArea1.CursorX.IntervalType = DateTimeIntervalType.Auto;
             //chartArea1.AxisX.ScaleView.Zoomable = false;
-            chartArea1.AxisX.ScrollBar.ButtonStyle = ScrollBarButtonStyles.All;//启用X轴滚动条按钮
+            chartArea1.AxisX.ScrollBar.ButtonStyle = ScrollBarButtonStyles.All; //启用X轴滚动条按钮
             //chartArea1.AxisX.LabelStyle.Format = "mm:ss";
 
-            chartArea1.BackColor = Color.AliceBlue;                      //背景色
-            chartArea1.BackSecondaryColor = Color.White;                 //渐变背景色
-            chartArea1.BackGradientStyle = GradientStyle.TopBottom;      //渐变方式
-            chartArea1.BackHatchStyle = ChartHatchStyle.None;            //背景阴影
-            chartArea1.BorderDashStyle = ChartDashStyle.NotSet;          //边框线样式
-            chartArea1.BorderWidth = 1;                                  //边框宽度
+            chartArea1.BackColor = Color.AliceBlue; //背景色
+            chartArea1.BackSecondaryColor = Color.White; //渐变背景色
+            chartArea1.BackGradientStyle = GradientStyle.TopBottom; //渐变方式
+            chartArea1.BackHatchStyle = ChartHatchStyle.None; //背景阴影
+            chartArea1.BorderDashStyle = ChartDashStyle.NotSet; //边框线样式
+            chartArea1.BorderWidth = 1; //边框宽度
             chartArea1.BorderColor = Color.Black;
 
 
@@ -238,7 +225,7 @@ namespace HT_Tools2
             chartArea1.AxisX.LabelStyle.Angle = -15;
 
 
-            chartArea1.AxisX.LabelStyle.IsEndLabelVisible = true;        //show the last label
+            chartArea1.AxisX.LabelStyle.IsEndLabelVisible = true; //show the last label
             chartArea1.AxisX.Interval = 10;
             chartArea1.AxisX.IntervalAutoMode = IntervalAutoMode.FixedCount;
             chartArea1.AxisX.IntervalType = DateTimeIntervalType.NotSet;
@@ -276,13 +263,13 @@ namespace HT_Tools2
             series1.ChartArea = "C1";
             this.chart1.Series.Add(series1);
             //设置图表显示样式
-            series1.ToolTip = "#VALX,#VALY";    //鼠标停留在数据点上，显示XY值
-            series1.ChartType = SeriesChartType.Spline;  // type
+            series1.ToolTip = "#VALX,#VALY"; //鼠标停留在数据点上，显示XY值
+            series1.ChartType = SeriesChartType.Spline; // type
             series1.BorderWidth = 2;
             series1.Color = Color.Red;
             //series1.XValueType = ChartValueType.DateTime;//x axis type
-            series1.XValueType = ChartValueType.Int64 ;
-            series1.YValueType = ChartValueType.Double;//y axis type
+            series1.XValueType = ChartValueType.Int64;
+            series1.YValueType = ChartValueType.Double; //y axis type
 
             //Marker
             series1.MarkerStyle = MarkerStyle.Square;
@@ -295,7 +282,7 @@ namespace HT_Tools2
             this.chart1.ChartAreas[0].AxisX.Interval = 5;
             this.chart1.ChartAreas[0].AxisX.MajorGrid.LineColor = System.Drawing.Color.Silver;
             this.chart1.ChartAreas[0].AxisY.MajorGrid.LineColor = System.Drawing.Color.Silver;
-            
+
 
             //this.chart1.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm:ss";
 
@@ -305,59 +292,29 @@ namespace HT_Tools2
             this.chart1.Titles[0].Text = "实时数据 mg/m³";
             this.chart1.Titles[0].ForeColor = Color.RoyalBlue;
             this.chart1.Titles[0].Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-    
+
             this.chart1.Series[0].Points.Clear();
 
 
             chart1.ChartAreas[0].AxisX.Interval = 10D;
             chart1.ChartAreas[0].AxisX.ScaleView.Size = 60D;
-            
-
-            
         }
 
-
-        private void GotTestDataAction(string txtName)
-        {
-            //StreamReader sr = new StreamReader(Directory.GetCurrentDirectory() + "\\log\\test.txt", Encoding.Default);
-            StreamReader sr = new StreamReader(Directory.GetCurrentDirectory() + "\\log\\" + txtName, Encoding.Default);
-            String line;
-
-            new Thread(() =>
-            {
-                while ((line = sr.ReadLine()) != null)
-                {
-
-                    int index = line.LastIndexOf(' ');
-                    string line2 = line.Substring(index + 1);
-                    MyAction(line2);
-                    Thread.Sleep(0);
-                }
-                
-            }) {IsBackground = true}.Start();
-            
-
-        }
-
+        /// <summary>
+        /// 创建btn,toolstrip
+        /// </summary>
         private void CreateCmd()
         {
             var cmds = GetCmds();
             var posx = 10;
             foreach (var cmdse in cmds)
             {
-               var cmd = new ToolStripMenuItem
+                var cmd = new ToolStripMenuItem
                 {
                     Text = cmdse.Cmd
                 };
-               cmd.Click += cmdse.Click;
-               //// 命令ToolStripMenuItem.DropDownItems.Add(cmd);
-                //读取所有log目录下的日志文件并加载在文件下拉选项
-                // var strAssemblyFilePath = Assembly.GetExecutingAssembly().Location;
-                // var strAssemblyDirPath = Path.GetDirectoryName(strAssemblyFilePath);
-                // DirectoryInfo theFolder = new DirectoryInfo(strAssemblyDirPath + $"\\log");
-                //foreach (FileInfo NextFile in theFolder.GetFiles())
-                //命令ToolStripMenuItem.DropDownItems.Add(NextFile.Name);
-                //命令ToolStripMenuItem.DropDownItems.Add(cmd);
+                cmd.Click += cmdse.Click;
+                命令ToolStripMenuItem.DropDownItems.Add(cmd);
 
                 var btn = new Button
                 {
@@ -373,74 +330,60 @@ namespace HT_Tools2
                 posx += btn.Width + 10;
             }
         }
-        private void CreateFileName()
-        {
-            var strAssemblyFilePath = Assembly.GetExecutingAssembly().Location;
-            var strAssemblyDirPath = Path.GetDirectoryName(strAssemblyFilePath);
-            DirectoryInfo theFolder = new DirectoryInfo(strAssemblyDirPath + $"\\log");
-            foreach(FileInfo NextFile in theFolder.GetFiles())
-            {
-                var cmd = new ToolStripMenuItem
-                {
-                    Text = NextFile.Name
-                };
-                cmd.Click += 命令ToolStripMenuItem_Click;
-                命令ToolStripMenuItem.DropDownItems.Add(cmd);
-            }
-        }
 
+        /// <summary>
+        /// 更新图标数据
+        /// </summary>
+        /// <param name="str"></param>
         private void UpdateChart(string str)
         {
-            this.chart1.ChartAreas[0].AxisY.Maximum = double.Parse(comboBox1.Text);
-            DateTime t = System.DateTime.Now;
-            if (dataQueue.Count > 10000)
+            try
             {
-                //先出列
+                this.chart1.ChartAreas[0].AxisY.Maximum = double.Parse(comboBox1.Text);
+                DateTime t = System.DateTime.Now;
+                if (dataQueue.Count > 10000)
+                {
+                    //先出列
+                    for (int i = 0; i < num; i++)
+                    {
+                        dataQueue.Dequeue();
+                        sum--;
+                    }
+                }
+
                 for (int i = 0; i < num; i++)
                 {
-                    dataQueue.Dequeue();
-                    sum--;
+                    sum++;
+                    dataQueue.Enqueue(float.Parse(str));
                 }
-            }
 
-           
-            for (int i = 0; i < num; i++)
+                this.chart1.Series[0].Points.Clear();
+
+                for (int i = 0; i < dataQueue.Count; i++)
+                {
+                    List<DateTime> DT1 = new List<DateTime>();
+                    this.chart1.Series[0].Points.AddXY(i, dataQueue.ElementAt(i));
+                }
+
+                //让x轴能自动移动
+                if (sum <= chart1.ChartAreas[0].AxisX.ScaleView.Size)
+                {
+                    chart1.ChartAreas[0].AxisX.ScaleView.Position = 0;
+                }
+                else
+                    chart1.ChartAreas[0].AxisX.ScaleView.Position = sum - chart1.ChartAreas[0].AxisX.ScaleView.Size - 2;
+            }
+            catch (Exception)
             {
-                sum++;
-                dataQueue.Enqueue(float.Parse(str));
+                //ignore
             }
-
-            this.chart1.Series[0].Points.Clear();
-            
-            for (int i = 0; i < dataQueue.Count; i++)
-            {
-                List<DateTime> DT1 = new List<DateTime>();
-               // DT1 = Enumerable.Range(0, dataQueue.Count).Select(x => x * 30).Select(x => new { h = x / 3600, m = (x % 3600)/60, s = (x % 3600) % 60 })
-               //     .Select(x => new DateTime(1900, 1, 1, x.h, x.m, x.s, DateTimeKind.Local)).ToList();
-
-                //this.chart1.Series[0].Points.DataBindXY(DT1, dataQueue);
-                this.chart1.Series[0].Points.AddXY(i, dataQueue.ElementAt(i));
-            }
-
-            //让x轴能自动移动
-            if (sum <= chart1.ChartAreas[0].AxisX.ScaleView.Size)
-            {
-
-                chart1.ChartAreas[0].AxisX.ScaleView.Position = 0;
-            }
-            else
-                chart1.ChartAreas[0].AxisX.ScaleView.Position = sum - chart1.ChartAreas[0].AxisX.ScaleView.Size - 2;
-
-
         }
 
-        private void 命令ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            GotTestDataAction(sender.ToString());
-            
-
-        }
-
+        /// <summary>
+        /// 时钟控制
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void timer1_Tick_1(object sender, EventArgs e)
         {
             var str = DateTime.Now.ToString("MMddHHmmss");
@@ -455,10 +398,24 @@ namespace HT_Tools2
             buttonNumber8.Number = Convert.ToInt32(str.Substring(7, 1));
             buttonNumber9.Number = Convert.ToInt32(str.Substring(8, 1));
             buttonNumber10.Number = Convert.ToInt32(str.Substring(9, 1));
+        }
 
+        public void ClearChart()
+        {
+            _valusetTable.Clear();
+            chart1.Series[0].Points.Clear();
+            dataQueue.Clear();
+            sum = 1;
+        }
 
+        public void Start()
+        {
+            //todo
+        }
 
+        public void Stop()
+        {
+            //todo
         }
     }
 }
-
