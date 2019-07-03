@@ -79,7 +79,7 @@
             this.groupBox1.Controls.Add(this.comboBox1);
             this.groupBox1.Location = new System.Drawing.Point(635, 159);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(457, 88);
+            this.groupBox1.Size = new System.Drawing.Size(492, 88);
             this.groupBox1.TabIndex = 19;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "命令";
@@ -87,7 +87,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(294, 37);
+            this.label4.Location = new System.Drawing.Point(343, 37);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(29, 12);
             this.label4.TabIndex = 26;
@@ -112,7 +112,7 @@
             "100",
             "150",
             "200"});
-            this.comboBox1.Location = new System.Drawing.Point(329, 34);
+            this.comboBox1.Location = new System.Drawing.Point(378, 34);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(100, 20);
             this.comboBox1.TabIndex = 25;
@@ -360,7 +360,6 @@
             this.命令ToolStripMenuItem.Name = "命令ToolStripMenuItem";
             this.命令ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
             this.命令ToolStripMenuItem.Text = "文件";
-            
             // 
             // menuStrip1
             // 
@@ -394,7 +393,6 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "Form1";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();

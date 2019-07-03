@@ -34,10 +34,7 @@ namespace HT_Tools2
                 }
             }
 
-
-            Trace.Listeners.Clear();
-            Trace.Listeners.Add(new Log());
-            Application.Run(new MainForm());
+            Application.Run(new SerialForm());
         }
     }
 }
