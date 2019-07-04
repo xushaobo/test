@@ -44,15 +44,15 @@ namespace HT_Tools2
 
         private void SerialForm_Load(object sender, EventArgs e)
         {
-#if DEBUG
-            var f = new FileForm()
-            {
-                LogFile = Directory.GetCurrentDirectory() + "\\log\\test.ht2"
-            };
-            f.ShowDialog();
-            this.Close();
-            return;
-#endif
+//#if DEBUG
+         //   var f = new FileForm()
+        //    {
+        //        LogFile = Directory.GetCurrentDirectory() + "\\log\\test.ht2"
+        //    };
+         //   f.ShowDialog();
+         //   this.Close();
+         //   return;
+//#endif
 
             //SerialPort(String, Int32, Parity, Int32, StopBits)	使用指定的端口名、波特率、奇偶校验位、数据位和停止位初始化 SerialPort 类的新实例。
 

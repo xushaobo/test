@@ -31,8 +31,8 @@ namespace HT_Tools2
         public new void Stop()
         {
 #if DEBUG
-            ClearChart();
-            return;
+          ClearChart();
+           return;
 #endif
 
             MessageBox.Show(@"查看文件时不自持此命令");

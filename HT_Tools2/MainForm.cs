@@ -51,7 +51,7 @@ namespace HT_Tools2
             _valusetTable.DefaultView.Sort = "Time DESC";
 
             this.comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
-            this.comboBox1.Text = "0.1"; //默认量程
+            this.comboBox1.Text = "1"; //默认量程
 
             _this = (ICmdAction) this;
         }
@@ -97,9 +97,9 @@ namespace HT_Tools2
                 Cmd = "重启应用",
                 Click = (s, e) =>
                 {
-#if DEBUG
-                    MessageBox.Show(_valusetTable.Rows.Count.ToString());
-#endif
+//#if DEBUG
+                   // MessageBox.Show(_valusetTable.Rows.Count.ToString());
+//#endif
                     Application.Restart();
                 }
             };
@@ -141,7 +141,7 @@ namespace HT_Tools2
             //忽略负值
             if (float.Parse(str) < 0.000001)
             {
-                return;
+              return;
             }
 
             Invoke(new Action(() =>
