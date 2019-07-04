@@ -24,10 +24,11 @@ namespace HT_Tools2
 
         public void WriteLine(string file, string message)
         {
-            var tempfile = $"{_direc}{file}.ht2";
+           //var tempfile = $"{_direc}{file}.ht2";
+           var tempfile = $"{file}";
 
             File.AppendAllText(tempfile, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}  {message}");
-            File.AppendAllText(tempfile, $"\r\n");
+            File.AppendAllText(tempfile, $"\n");
         }
 
         public string GetFileNum()
