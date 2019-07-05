@@ -44,6 +44,7 @@ namespace HT_Tools2
 
         private void SerialForm_Load(object sender, EventArgs e)
         {
+
             //#if DEBUG
             //   var f = new FileForm()
             //    {
@@ -53,6 +54,7 @@ namespace HT_Tools2
             //   this.Close();
             //   return;
             //#endif
+
 
 
             
